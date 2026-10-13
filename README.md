@@ -18,8 +18,6 @@
 <div align="center">
   <img height="180em" src="https://github-readme-stats.vercel.app/api?username=bishop9910&show_icons=true&theme=github_dark&layout=compact" />
   <img height="180em" src="https://github-readme-stats.vercel.app/api/top-langs/?username=bishop9910&layout=compact&theme=github_dark&hide_border=true&langs_count=8" />
-  <br/><br/>
-  <img src="https://github-readme-activity-graph.vercel.app/graph?username=bishop9910&theme=github-dark&hide_border=true&custom_title=Contribution%20Graph" width="95%" alt="Activity Graph" />
 </div>
 
 # Tech Stack
