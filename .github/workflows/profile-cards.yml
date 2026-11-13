@@ -1,0 +1,49 @@
+name: Update profile cards
+
+on:
+  schedule:
+    # 11:00 Asia/Shanghai (03:00 UTC) — daily refresh
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/generate-cards.mjs'
+      - '.github/workflows/profile-cards.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: profile-cards
+  cancel-in-progress: true
+
+jobs:
+  cards:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Generate cards
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_LOGIN: ${{ github.repository_owner }}
+        run: node scripts/generate-cards.mjs
+
+      - name: Commit refreshed cards
+        run: |
+          if git diff --quiet -- assets; then
+            echo "cards already up to date"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets
+          git commit -m "chore(cards): refresh profile cards"
+          git push
