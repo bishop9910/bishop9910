@@ -180,6 +180,14 @@ async function collectLive() {
     console.warn(`contribution graph unavailable: ${err.message}`);
   }
 
+  // Commits, PRs and the calendar all come from GraphQL, so without a token we
+  // would render half a card. Refuse instead of writing partial numbers.
+  if (!activity) {
+    throw new Error(
+      'contribution data unavailable — GitHub GraphQL needs a token: set GITHUB_TOKEN (or GH_TOKEN)',
+    );
+  }
+
   const stars = own.reduce((sum, r) => sum + r.stargazers_count, 0);
   const recent = [...own]
     .sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at))
@@ -702,11 +710,19 @@ async function loadData() {
     console.warn(`live fetch failed (${err.message}); trying cache`);
     try {
       const cached = JSON.parse(await readFile(CACHE_FILE, 'utf8'));
+      if (!cached.activity) throw new Error('cached snapshot has no contribution data');
       console.log(`cache from ${cached.generatedAt}`);
       return cached;
     } catch {
-      console.warn('no cache; falling back to demo data');
-      return demoData();
+      // Never invent numbers on a profile: without real data we leave the
+      // committed cards untouched and fail loudly instead of shipping made-up
+      // repositories, stars and dates.
+      console.error(
+        'no GitHub data available — set GITHUB_TOKEN (or GH_TOKEN) and retry.\n' +
+          'Placeholder cards are only written when you ask for them explicitly:\n' +
+          '  node scripts/generate-cards.mjs --demo',
+      );
+      process.exit(1);
     }
   }
 }

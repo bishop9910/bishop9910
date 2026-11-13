@@ -6,10 +6,9 @@ on:
     - cron: '0 3 * * *'
   workflow_dispatch:
   push:
+    # Refresh on every push so a stale or placeholder card can never survive a
+    # commit; the bot's own commit is skipped by the job-level `if` below.
     branches: [main]
-    paths:
-      - 'scripts/generate-cards.mjs'
-      - '.github/workflows/profile-cards.yml'
 
 permissions:
   contents: write
@@ -20,6 +19,7 @@ concurrency:
 
 jobs:
   cards:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
