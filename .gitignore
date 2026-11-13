@@ -1,3 +1,5 @@
 .preview/
 .graphflow/
 graphflow-out/
+.cache/
+scripts/_*.tmp.mjs
